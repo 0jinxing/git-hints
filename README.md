@@ -1,71 +1,88 @@
-# git-hints README
+# Git Hints - VSCode 插件
 
-This is the README for your extension "git-hints". After writing up a brief description, we recommend including the following sections.
+一个VSCode插件，以inline-hint的方式显示当前代码的commit信息和作者，支持点击查看详细改动。
 
-## Features
+## 功能特性
 
-Describe specific features of your extension including screenshots of your extension in action. Image paths are relative to this README file.
+- 📝 **Inline Hint显示**: 在代码行末显示commit ID和作者信息
+- 🖱️ **点击交互**: 鼠标悬停显示详细信息，可点击查看完整提交记录
+- ⚙️ **可配置**: 支持自定义显示内容（commit ID、作者名）
+- 🎯 **智能显示**: 只显示当前光标所在行的git信息（可配置为显示所有行）
+- 🔄 **实时更新**: 文件修改后自动更新git信息
+- 📊 **性能优化**: 智能缓存机制，避免重复git操作
 
-For example if there is an image subfolder under your extension project workspace:
+## 使用方法
 
-\!\[feature X\]\(images/feature-x.png\)
+### 基本使用
 
-> Tip: Many popular extensions utilize animations. This is an excellent way to show off your extension! We recommend short, focused animations that are easy to follow.
+1. 安装插件后，打开任意git仓库中的文件
+2. **智能显示模式**：只显示当前光标所在行的git信息
+3. 鼠标悬停在hint上可查看详细信息
+4. 点击hover中的链接可查看完整提交详情
+5. 光标移动时，hint会自动跟随显示当前行的信息
 
-## Requirements
+### 命令
 
-If you have any requirements or dependencies, add a section describing those and how to install and configure them.
+- `Git Hints: Toggle Git Hints` - 切换显示/隐藏git hints
+- `Git Hints: Show Commit Details` - 显示提交详情（通过hover链接调用）
 
-## Extension Settings
+### 配置选项
 
-Include if your extension adds any VS Code settings through the `contributes.configuration` extension point.
+在VSCode设置中搜索 `gitHints` 进行配置：
 
-For example:
+- `gitHints.enabled`: 启用/禁用git hints (默认: true)
+- `gitHints.showAuthor`: 显示作者名 (默认: true)
+- `gitHints.showCommitId`: 显示commit ID (默认: false)
+- `gitHints.showDate`: 显示日期 (默认: true)
+- `gitHints.compactMode`: 紧凑模式，自动缩短长名称 (默认: true)
+- `gitHints.displayMode`: 显示模式，`currentLine`（只显示当前行）或`allLines`（显示所有行）(默认: currentLine)
 
-This extension contributes the following settings:
+## 显示格式
 
-* `myExtension.enable`: Enable/disable this extension.
-* `myExtension.thing`: Set to `blah` to do something.
+每行代码末尾显示格式：`日期 作者`（默认）或自定义格式
 
-## Known Issues
+### 默认显示格式（时间和作者）
+```javascript
+console.log('Hello World');  today 21:14 Jones
+console.log('Another line');  2024/12/13 14:30 Smith
+```
 
-Calling out known issues can help limit users opening duplicate issues against your extension.
+### 时间格式说明
+- 今天的提交：`today HH:MM`
+- 其他日期：`YYYY/MM/DD HH:MM`
 
-## Release Notes
+### 自定义显示
+你可以通过配置选项控制显示内容：
+- 只显示时间和作者：`today 21:14 Jones`（默认）
+- 只显示作者：`Jones`
+- 显示commit ID：在hover中查看
 
-Users appreciate release notes as you update your extension.
+## 性能说明
 
-### 1.0.0
+- 使用缓存机制减少git操作
+- 文件保存后自动刷新缓存
+- 仅对可见编辑器进行更新
+- 排除日志文件等特殊文件类型
 
-Initial release of ...
+## 要求
 
-### 1.0.1
+- VSCode 1.106.0 或更高版本
+- Git 已安装且在系统PATH中
+- 打开的文件夹必须是Git仓库
 
-Fixed issue #.
+## 开发
 
-### 1.1.0
+```bash
+# 安装依赖
+pnpm install
 
-Added features X, Y, and Z.
+# 编译
+pnpm compile
 
----
+# 运行测试
+pnpm test
+```
 
-## Following extension guidelines
+## 许可证
 
-Ensure that you've read through the extensions guidelines and follow the best practices for creating your extension.
-
-* [Extension Guidelines](https://code.visualstudio.com/api/references/extension-guidelines)
-
-## Working with Markdown
-
-You can author your README using Visual Studio Code. Here are some useful editor keyboard shortcuts:
-
-* Split the editor (`Cmd+\` on macOS or `Ctrl+\` on Windows and Linux).
-* Toggle preview (`Shift+Cmd+V` on macOS or `Shift+Ctrl+V` on Windows and Linux).
-* Press `Ctrl+Space` (Windows, Linux, macOS) to see a list of Markdown snippets.
-
-## For more information
-
-* [Visual Studio Code's Markdown Support](http://code.visualstudio.com/docs/languages/markdown)
-* [Markdown Syntax Reference](https://help.github.com/articles/markdown-basics/)
-
-**Enjoy!**
+MIT

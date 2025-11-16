@@ -9,15 +9,125 @@
   "categories": [
     "Other"
   ],
-  "activationEvents": [],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
   "main": "./out/extension.js",
   "contributes": {
     "commands": [
       {
-        "command": "git-hints.helloWorld",
-        "title": "Hello World"
+        "command": "git-hints.toggleGitHints",
+        "title": "Toggle Git Hints"
+      },
+      {
+        "command": "git-hints.showCommitDetails",
+        "title": "Show Commit Details"
+      },
+      {
+        "command": "git-hints.refreshGitHints",
+        "title": "Refresh Git Hints"
+      },
+      {
+        "command": "git-hints.nextVersion",
+        "title": "Next Version",
+        "icon": "$(arrow-right)"
+      },
+      {
+        "command": "git-hints.previousVersion",
+        "title": "Previous Version",
+        "icon": "$(arrow-left)"
+      },
+      {
+        "command": "git-hints.showFileHistory",
+        "title": "Show File History",
+        "icon": "$(history)"
       }
-    ]
+    ],
+    "menus": {
+      "editor/title": [
+        {
+          "command": "git-hints.previousVersion",
+          "group": "navigation@1",
+          "when": "git-hints.canNavigatePrevious"
+        },
+        {
+          "command": "git-hints.nextVersion",
+          "group": "navigation@2",
+          "when": "git-hints.canNavigateNext"
+        },
+        {
+          "command": "git-hints.showFileHistory",
+          "group": "navigation@3"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "Git Hints",
+      "properties": {
+        "gitHints.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable/disable git hints"
+        },
+        "gitHints.showAuthor": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show author name in git hints"
+        },
+        "gitHints.showCommitId": {
+          "type": "boolean",
+          "default": false,
+          "description": "Show commit ID in git hints"
+        },
+        "gitHints.showDate": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show date in git hints"
+        },
+        "gitHints.compactMode": {
+          "type": "boolean",
+          "default": true,
+          "description": "Use compact mode (shorten long names)"
+        },
+        "gitHints.displayMode": {
+          "type": "string",
+          "enum": [
+            "currentLine",
+            "allLines"
+          ],
+          "default": "currentLine",
+          "description": "Display mode: show hints for current line only or all lines"
+        },
+        "gitHints.performance.cacheTTL": {
+          "type": "number",
+          "default": 5000,
+          "minimum": 1000,
+          "maximum": 60000,
+          "description": "Cache time-to-live in milliseconds for git blame information"
+        },
+        "gitHints.performance.debounceDelay": {
+          "type": "number",
+          "default": 300,
+          "minimum": 50,
+          "maximum": 2000,
+          "description": "Debounce delay in milliseconds for cursor movement events"
+        },
+        "gitHints.performance.maxFileHistoryCache": {
+          "type": "number",
+          "default": 50,
+          "minimum": 10,
+          "maximum": 500,
+          "description": "Maximum number of files to cache in file history"
+        },
+        "gitHints.performance.maxDisplayCommits": {
+          "type": "number",
+          "default": 100,
+          "minimum": 10,
+          "maximum": 1000,
+          "description": "Maximum number of commits to display in file history quick pick"
+        }
+      }
+    }
   },
   "scripts": {
     "vscode:prepublish": "pnpm run compile",
@@ -28,13 +138,18 @@
     "test": "vscode-test"
   },
   "devDependencies": {
-    "@types/vscode": "^1.106.0",
     "@types/mocha": "^10.0.10",
     "@types/node": "22.x",
-    "typescript-eslint": "^8.46.3",
+    "@types/vscode": "^1.106.0",
+    "@vscode/test-cli": "^0.0.12",
+    "@vscode/test-electron": "^2.5.2",
     "eslint": "^9.39.1",
     "typescript": "^5.9.3",
-    "@vscode/test-cli": "^0.0.12",
-    "@vscode/test-electron": "^2.5.2"
+    "typescript-eslint": "^8.46.3"
+  },
+  "dependencies": {
+    "moment": "^2.30.1",
+    "quick-lru": "^7.3.0",
+    "tiny-lru": "^11.4.5"
   }
 }
