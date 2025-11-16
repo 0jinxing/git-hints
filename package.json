@@ -1,12 +1,16 @@
 {
   "name": "git-hints",
-  "displayName": "git-hints",
-  "description": "",
-  "version": "0.0.1",
+  "displayName": "Git Hints",
+  "description": "A powerful Git integration extension that provides inline commit annotations, file history navigation, and enhanced Git workflow tools for Visual Studio Code.",
+  "version": "0.0.3",
+  "publisher": "0jinxing",
+  "repository": "https://github.com/0jinxing/git-hints",
+  "icon": "images/icon.png",
   "engines": {
     "vscode": "^1.106.0"
   },
   "categories": [
+    "SCM Providers",
     "Other"
   ],
   "activationEvents": [
@@ -131,6 +135,7 @@
   },
   "scripts": {
     "vscode:prepublish": "pnpm run compile",
+    "package": "vsce package --no-dependencies",
     "compile": "tsc -p ./",
     "watch": "tsc -watch -p ./",
     "pretest": "pnpm run compile && pnpm run lint",
@@ -148,8 +153,6 @@
     "typescript-eslint": "^8.46.3"
   },
   "dependencies": {
-    "moment": "^2.30.1",
-    "quick-lru": "^7.3.0",
-    "tiny-lru": "^11.4.5"
+    "@vscode/vsce": "^3.7.0"
   }
 }

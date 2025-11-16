@@ -27,6 +27,8 @@ function toGitUri(uri: vscode.Uri, ref: string, replaceFileExtension = false) {
 
 export function activate(context: vscode.ExtensionContext) {
     console.log('Git Hints 扩展已激活');
+    console.log('激活上下文:', context);
+    console.log('扩展路径:', context.extensionPath);
 
     // 创建管理器（函数式）
     const blameManager = createBlameManager();
@@ -49,14 +51,19 @@ export function activate(context: vscode.ExtensionContext) {
     const toggleEnabled = (currentState: boolean): boolean => !currentState;
 
     // 切换显示状态
+    console.log('开始注册 toggleGitHints 命令...');
     const toggleCommand = vscode.commands.registerCommand('git-hints.toggleGitHints', () => {
+        console.log('toggleGitHints 命令被执行');
         state.isEnabled = toggleEnabled(state.isEnabled);
         updateAllVisibleEditors();
         vscode.window.showInformationMessage(`Git Hints ${state.isEnabled ? '已启用' : '已禁用'}`);
     });
+    console.log('toggleGitHints 命令注册完成:', toggleCommand);
 
     // 复制提交ID
+    console.log('开始注册 copyCommitId 命令...');
     const copyCommitIdCommand = vscode.commands.registerCommand('git-hints.copyCommitId', async (commitId: string) => {
+        console.log('copyCommitId 命令被执行，参数:', commitId);
         if (!commitId) {
             vscode.window.showErrorMessage('无法获取提交ID');
             return;
@@ -69,9 +76,12 @@ export function activate(context: vscode.ExtensionContext) {
             vscode.window.showErrorMessage(`复制失败: ${error}`);
         }
     });
+    console.log('copyCommitId 命令注册完成:', copyCommitIdCommand);
 
     // 显示提交详情
+    console.log('开始注册 showCommitDetails 命令...');
     const showCommitDetailsCommand = vscode.commands.registerCommand('git-hints.showCommitDetails', async (commitId: string) => {
+        console.log('showCommitDetails 命令被执行，参数:', commitId);
         if (!commitId) {
             vscode.window.showErrorMessage('无法获取提交ID');
             return;
@@ -243,6 +253,7 @@ export function activate(context: vscode.ExtensionContext) {
             vscode.window.showErrorMessage(`打开提交对比失败: ${error}`);
         }
     });
+    console.log('showCommitDetails 命令注册完成:', showCommitDetailsCommand);
 
     // 纯函数：检查编辑器是否应该被处理
     const shouldProcessEditor = (editor: vscode.TextEditor): boolean => {
@@ -451,7 +462,9 @@ export function activate(context: vscode.ExtensionContext) {
     }
 
     // 手动刷新git hints
+    console.log('开始注册 refreshGitHints 命令...');
     const refreshCommand = vscode.commands.registerCommand('git-hints.refreshGitHints', async () => {
+        console.log('refreshGitHints 命令被执行');
         const editor = vscode.window.activeTextEditor;
         if (editor) {
             const filePath = editor.document.uri.fsPath;
@@ -466,6 +479,7 @@ export function activate(context: vscode.ExtensionContext) {
             vscode.window.showInformationMessage('Git Hints 已全部刷新');
         }
     });
+    console.log('refreshGitHints 命令注册完成:', refreshCommand);
 
     // 更新导航按钮状态
     const updateNavigationContext = (editor: vscode.TextEditor | undefined) => {
@@ -497,7 +511,9 @@ export function activate(context: vscode.ExtensionContext) {
     };
 
     // 文件历史导航：上一个版本（更旧）
+    console.log('开始注册 previousVersion 命令...');
     const previousVersionCommand = vscode.commands.registerCommand('git-hints.previousVersion', async () => {
+        console.log('previousVersion 命令被执行');
         const editor = vscode.window.activeTextEditor;
         if (!editor) {
             vscode.window.showErrorMessage('没有打开的编辑器');
@@ -507,9 +523,12 @@ export function activate(context: vscode.ExtensionContext) {
         await navigateToPreviousVersion(editor);
         updateNavigationContext(vscode.window.activeTextEditor);
     });
+    console.log('previousVersion 命令注册完成:', previousVersionCommand);
 
     // 文件历史导航：下一个版本（更��）
+    console.log('开始注册 nextVersion 命令...');
     const nextVersionCommand = vscode.commands.registerCommand('git-hints.nextVersion', async () => {
+        console.log('nextVersion 命令被执行');
         const editor = vscode.window.activeTextEditor;
         if (!editor) {
             vscode.window.showErrorMessage('没有打开的编辑器');
@@ -519,9 +538,12 @@ export function activate(context: vscode.ExtensionContext) {
         await navigateToNextVersion(editor);
         updateNavigationContext(vscode.window.activeTextEditor);
     });
+    console.log('nextVersion 命令注册完成:', nextVersionCommand);
 
     // 显示文件历史列表
+    console.log('开始注册 showFileHistory 命令...');
     const showFileHistoryCommand = vscode.commands.registerCommand('git-hints.showFileHistory', async () => {
+        console.log('showFileHistory 命令被执行');
         const editor = vscode.window.activeTextEditor;
         if (!editor) {
             vscode.window.showErrorMessage('没有打开的编辑器');
@@ -530,12 +552,14 @@ export function activate(context: vscode.ExtensionContext) {
 
         await showFileHistoryList(editor);
     });
+    console.log('showFileHistory 命令注册完成:', showFileHistoryCommand);
 
     // 初始化所有打开的编辑器
     updateAllVisibleEditors();
     updateNavigationContext(vscode.window.activeTextEditor);
 
     // 注册所有命令和监听器（函数式组合）
+    console.log('开始创建订阅列表...');
     const subscriptions = [
         toggleCommand,
         copyCommitIdCommand,
@@ -561,7 +585,11 @@ export function activate(context: vscode.ExtensionContext) {
         }}
     ];
 
+    console.log('订阅列表创建完成，包含', subscriptions.length, '个项目');
+    console.log('开始将订阅推送到上下文...');
     context.subscriptions.push(...subscriptions);
+    console.log('订阅推送完成，上下文订阅数量:', context.subscriptions.length);
+    console.log('所有命令注册完成，扩展激活流程结束');
 }
 
 export function deactivate() {
