@@ -13,6 +13,9 @@
     "SCM Providers",
     "Other"
   ],
+  "extensionDependencies": [
+    "vscode.git"
+  ],
   "activationEvents": [
     "onStartupFinished"
   ],
@@ -45,6 +48,14 @@
         "command": "git-hints.showFileHistory",
         "title": "Show File History",
         "icon": "$(history)"
+      },
+      {
+        "command": "git-hints.openFileAtCommit",
+        "title": "Open File at Commit"
+      },
+      {
+        "command": "git-hints.showCommitFromInput",
+        "title": "Show Commit by Hash"
       }
     ],
     "menus": {
@@ -62,6 +73,15 @@
         {
           "command": "git-hints.showFileHistory",
           "group": "navigation@3"
+        }
+      ]
+    },
+    "views": {
+      "explorer": [
+        {
+          "id": "gitHintsCommitExplorer",
+          "name": "Commit Files",
+          "icon": "$(git-commit)"
         }
       ]
     },
