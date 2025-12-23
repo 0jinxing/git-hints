@@ -3,8 +3,8 @@ import { createBlameManager } from './core/blame';
 import { createDecorationManager } from './core/decoration';
 import { shouldIgnoreFile } from './utils/git';
 import { clearFileCache, clearExpiredCache } from './core/git';
-import { navigateToPreviousVersion, navigateToNextVersion, clearFileHistoryState, getFileHistoryState, getCurrentCommitHash, getCurrentIndex, showFileHistoryList } from './core/file-history';
-import { CommitTreeProvider, CommitFileChange, CommitFileItem } from './core/commit-tree';
+import { navigateToPreviousVersion, navigateToNextVersion, clearFileHistoryState, getFileHistoryState, getCurrentCommitHash, getCurrentIndex } from './core/file-history';
+import { CommitTreeProvider, CommitFileChange, CommitFileItem, FileHistoryTreeProvider } from './providers/tree-provider';
 
 // Terminal Link Provider 用于终端 commit hash 点击
 class GitCommitLinkProvider implements vscode.TerminalLinkProvider {
@@ -90,6 +90,13 @@ export function activate(context: vscode.ExtensionContext) {
     const commitTreeProvider = new CommitTreeProvider();
     const commitTreeView = vscode.window.createTreeView('gitHintsCommitExplorer', {
         treeDataProvider: commitTreeProvider,
+        showCollapseAll: true
+    });
+
+    // 创建文件历史 TreeView 提供者
+    const fileHistoryTreeProvider = new FileHistoryTreeProvider();
+    const fileHistoryTreeView = vscode.window.createTreeView('gitHintsFileHistoryExplorer', {
+        treeDataProvider: fileHistoryTreeProvider,
         showCollapseAll: true
     });
 
@@ -229,8 +236,12 @@ export function activate(context: vscode.ExtensionContext) {
         }
 
         try {
-            const commitInfo = commitTreeProvider.getCurrentCommitInfo();
-            const commitId = commitInfo.commitId;
+            // 优先使用传入的 commitHash（文件历史视图），否则从 commitTreeProvider 获取
+            const commitId = change.commitHash || commitTreeProvider.getCurrentCommitInfo().commitId;
+            if (!commitId) {
+                vscode.window.showErrorMessage('无法获取提交ID');
+                return;
+            }
             const fileUri = change.uri;
             const relativePath = vscode.workspace.asRelativePath(fileUri.fsPath);
             const status = change.status;
@@ -576,7 +587,24 @@ export function activate(context: vscode.ExtensionContext) {
             return;
         }
 
-        await showFileHistoryList(editor);
+        try {
+            const filePath = editor.document.uri.fsPath;
+            const workspaceFolder = vscode.workspace.getWorkspaceFolder(vscode.Uri.file(filePath));
+            if (!workspaceFolder) {
+                vscode.window.showErrorMessage('文件不在工作区中');
+                return;
+            }
+
+            // 设置文件并加载历史到树视图
+            fileHistoryTreeProvider.setFile(filePath, workspaceFolder.uri.fsPath);
+            await fileHistoryTreeProvider.loadFileHistory();
+
+            // 聚焦到文件历史视图
+            await vscode.commands.executeCommand('gitHintsFileHistoryExplorer.focus');
+        } catch (error) {
+            console.error('showFileHistory 执行失败:', error);
+            vscode.window.showErrorMessage(`加载文件历史失败: ${error}`);
+        }
     });
     console.log('showFileHistory 命令注册完成:', showFileHistoryCommand);
 
@@ -681,6 +709,7 @@ export function activate(context: vscode.ExtensionContext) {
         showFileHistoryCommand,
         showCommitFromInputCommand,
         commitTreeView,
+        fileHistoryTreeView,
         ...(terminalLinkProvider ? [terminalLinkProvider] : []),
         onDidChangeActiveEditor,
         onDidChangeTextDocument,

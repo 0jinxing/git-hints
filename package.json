@@ -77,11 +77,16 @@
       ]
     },
     "views": {
-      "explorer": [
+      "scm": [
         {
           "id": "gitHintsCommitExplorer",
           "name": "Commit Files",
           "icon": "$(git-commit)"
+        },
+        {
+          "id": "gitHintsFileHistoryExplorer",
+          "name": "File History",
+          "icon": "$(history)"
         }
       ]
     },
@@ -160,6 +165,8 @@
     "watch": "tsc -watch -p ./",
     "pretest": "pnpm run compile && pnpm run lint",
     "lint": "eslint src",
+    "format": "prettier --write \"src/**/*.{ts,js,json}\"",
+    "format:check": "prettier --check \"src/**/*.{ts,js,json}\"",
     "test": "vscode-test"
   },
   "devDependencies": {
@@ -169,6 +176,7 @@
     "@vscode/test-cli": "^0.0.12",
     "@vscode/test-electron": "^2.5.2",
     "eslint": "^9.39.1",
+    "prettier": "^3.3.3",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.46.3"
   },

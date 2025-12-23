@@ -12,6 +12,8 @@ export interface FileHistoryCommit {
     date: Date;
     message: string;
     filePath: string; // 该提交时的文件路径
+    oldFilePath?: string; // 重命名时的旧文件路径
+    status: 'A' | 'M' | 'D' | 'R' | 'C' | 'T' | 'U'; // 文件在该提交中的状态
 }
 
 export interface FileHistoryState {
@@ -71,9 +73,10 @@ export async function getFileHistory(filePath: string, workspaceRoot: string): P
         // 获取相对路径
         const relativePath = path.relative(workspaceRoot, filePath).replace(/\\/g, '/');
 
-        // 使用 git log 获取文件历史，包含文件名以追踪重命名
+        // 使用 git log 获取文件历史，包含文件名和状态以追踪重命名
         // 设置 core.quotePath=false 确保中文文件名不被转义
-        const command = `git -c core.quotePath=false log --follow --name-only --format="%H|%an|%ai|%s" -- "${relativePath}"`;
+        // 使用 --name-status 获取文件状态（A/M/D/R等）
+        const command = `git -c core.quotePath=false log --follow --name-status --format="%H|%an|%ai|%s" -- "${relativePath}"`;
 
         const { stdout, stderr } = await execAsync(command, { cwd: workspaceRoot });
 
@@ -86,16 +89,33 @@ export async function getFileHistory(filePath: string, workspaceRoot: string): P
 
         for (let i = 0; i < lines.length; i++) {
             const line = lines[i].trim();
-            if (!line) continue;
+            if (!line) {continue;}
 
             const parts = line.split('|');
             if (parts.length >= 4) {
-                // 跳过空行找到文件路径
+                // 跳过空行找到文件状态和路径
                 let commitFilePath = relativePath;
+                let oldFilePath: string | undefined;
+                let status: FileHistoryCommit['status'] = 'M';
+
                 for (let j = i + 1; j < lines.length; j++) {
                     const nextLine = lines[j].trim();
                     if (nextLine) {
-                        commitFilePath = nextLine;
+                        // --name-status 输出格式: "M\tfile.txt" 或 "R100\told.txt\tnew.txt"
+                        const statusMatch = nextLine.match(/^([AMDRTCU])\d*\t(.+)$/);
+                        if (statusMatch) {
+                            status = statusMatch[1] as FileHistoryCommit['status'];
+                            const paths = statusMatch[2].split('\t');
+                            if (status === 'R' && paths.length >= 2) {
+                                // 重命名：第一个是旧路径，第二个是新路径
+                                oldFilePath = paths[0];
+                                commitFilePath = paths[1];
+                            } else {
+                                commitFilePath = paths[paths.length - 1];
+                            }
+                        } else {
+                            commitFilePath = nextLine;
+                        }
                         i = j; // 跳到文件路径行
                         break;
                     }
@@ -106,7 +126,9 @@ export async function getFileHistory(filePath: string, workspaceRoot: string): P
                     author: parts[1],
                     date: new Date(parts[2]),
                     message: parts.slice(3).join('|'),
-                    filePath: path.join(workspaceRoot, commitFilePath)
+                    filePath: path.join(workspaceRoot, commitFilePath),
+                    oldFilePath: oldFilePath ? path.join(workspaceRoot, oldFilePath) : undefined,
+                    status
                 });
             }
         }
@@ -248,7 +270,7 @@ export async function navigateToNextVersion(editor: vscode.TextEditor): Promise<
         return false;
     }
 
-    let state = getFileHistoryState(filePath);
+    const state = getFileHistoryState(filePath);
 
     // 如果没有状态，说明在当前版本
     if (!state) {

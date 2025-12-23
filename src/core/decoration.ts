@@ -2,7 +2,7 @@
 
 import * as vscode from 'vscode';
 import { GitBlameInfo } from '../types';
-import { createLineDecorations } from '../utils/decoration';
+import { buildLineDecorations } from '../utils/decoration';
 
 /**
  * 创建装饰器类型
@@ -27,7 +27,7 @@ export const applyDecorations = (
   blameInfos: Map<number, GitBlameInfo>,
   currentLine?: number
 ): void => {
-  const decorations = createLineDecorations(editor, blameInfos, currentLine);
+  const decorations = buildLineDecorations(editor, blameInfos, currentLine);
   editor.setDecorations(decorationType, decorations);
 };
 
