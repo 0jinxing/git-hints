@@ -23,26 +23,8 @@
   "contributes": {
     "commands": [
       {
-        "command": "git-hints.toggleGitHints",
-        "title": "Toggle Git Hints"
-      },
-      {
         "command": "git-hints.showCommitDetails",
         "title": "Show Commit Details"
-      },
-      {
-        "command": "git-hints.refreshGitHints",
-        "title": "Refresh Git Hints"
-      },
-      {
-        "command": "git-hints.nextVersion",
-        "title": "Next Version",
-        "icon": "$(arrow-right)"
-      },
-      {
-        "command": "git-hints.previousVersion",
-        "title": "Previous Version",
-        "icon": "$(arrow-left)"
       },
       {
         "command": "git-hints.showFileHistory",
@@ -52,27 +34,13 @@
       {
         "command": "git-hints.openFileAtCommit",
         "title": "Open File at Commit"
-      },
-      {
-        "command": "git-hints.showCommitFromInput",
-        "title": "Show Commit by Hash"
       }
     ],
     "menus": {
       "editor/title": [
         {
-          "command": "git-hints.previousVersion",
-          "group": "navigation@1",
-          "when": "git-hints.canNavigatePrevious"
-        },
-        {
-          "command": "git-hints.nextVersion",
-          "group": "navigation@2",
-          "when": "git-hints.canNavigateNext"
-        },
-        {
           "command": "git-hints.showFileHistory",
-          "group": "navigation@3"
+          "group": "navigation"
         }
       ]
     },

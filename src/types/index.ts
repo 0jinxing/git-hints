@@ -1,4 +1,6 @@
-// 类型定义
+/**
+ * Git 相关的类型定义
+ */
 
 export interface GitBlameInfo {
   commitId: string;
@@ -6,8 +8,8 @@ export interface GitBlameInfo {
   date: string;
   line: number;
   content: string;
-  message?: string;  // 提交消息
-  isUncommitted?: boolean;  // 未提交的修改（包括暂存区和工作区）
+  message?: string;
+  isUncommitted?: boolean;
 }
 
 export interface GitCommandOptions {
@@ -16,3 +18,22 @@ export interface GitCommandOptions {
 }
 
 export type BlameCache = Map<string, Map<number, GitBlameInfo>>;
+
+// 文件变更状态类型
+export type FileChangeStatus = 'A' | 'M' | 'D' | 'R' | 'C' | 'T' | 'U';
+
+export interface FileChange {
+  status: FileChangeStatus;
+  path: string;
+  oldPath?: string;
+}
+
+export interface CommitDetails {
+  hash: string;
+  author: string;
+  date: Date;
+  message: string;
+  filePath: string;
+  oldFilePath?: string;
+  status: FileChangeStatus;
+}

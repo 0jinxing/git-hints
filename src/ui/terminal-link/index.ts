@@ -12,7 +12,7 @@ import * as vscode from 'vscode';
 export class GitCommitLinkProvider implements vscode.TerminalLinkProvider {
   private readonly _commitHashes = new Map<vscode.TerminalLink, string>();
 
-  constructor(private _workspaceRoot: string) {}
+  constructor(private _workspaceRoot: string) { }
 
   /**
    * 提供链接的方法 - 检测 commit hash
@@ -58,7 +58,7 @@ export class GitCommitLinkProvider implements vscode.TerminalLinkProvider {
 
     // 先将 commit hash 写入剪贴板，然后执行命令
     return vscode.env.clipboard.writeText(commitHash).then(() => {
-      return vscode.commands.executeCommand('git-hints.showCommitFromInput');
+      return vscode.commands.executeCommand('git-hints.showCommitDetails', commitHash);
     });
   }
 }
